@@ -6,6 +6,18 @@ using UnityEngine.SceneManagement; // Required for scene management
 /// </summary>
 public class MainMenuController : MonoBehaviour
 {
+
+    [SerializeField] private float fadeInTime = 2.0f;
+
+    void Start()
+    {
+        // When the main menu loads, tell the fader to fade in from black.
+        if (Fader.instance != null)
+        {
+            Fader.instance.FadeIn(fadeInTime);
+        }
+    }
+
     // --- Public Methods (to be called by UI Buttons) ---
 
     /// <summary>
@@ -15,13 +27,18 @@ public class MainMenuController : MonoBehaviour
     /// </summary>
     public void ExitGame()
     {
+        // Add a log that will appear in both the editor and the build's log file.
+        Debug.Log("ExitGame() method called.");
+
         // This is a preprocessor directive. The code inside this block will only be
         // included when the game is being run inside the Unity Editor.
-#if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
-#else
+        #if UNITY_EDITOR
+            Debug.Log("Running in Editor. Setting isPlaying to false.");
+            UnityEditor.EditorApplication.isPlaying = false;
+        #else
+            Debug.Log("Running in a build. Calling Application.Quit().");
             Application.Quit();
-#endif
+        #endif
     }
 
     /*
