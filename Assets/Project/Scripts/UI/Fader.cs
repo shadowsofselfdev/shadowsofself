@@ -1,13 +1,10 @@
 using System.Collections;
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
-/// <summary>
-/// A singleton component that handles fading the screen to/from black.
-/// It persists between scenes.
-/// </summary>
 public class Fader : MonoBehaviour
 {
+    [SerializeField] private float fadeTime = 0.25f;
+
     public static Fader instance;
 
     private CanvasGroup canvasGroup;
@@ -20,6 +17,7 @@ public class Fader : MonoBehaviour
             instance = this;
             DontDestroyOnLoad(gameObject);
             canvasGroup = GetComponent<CanvasGroup>();
+            canvasGroup.blocksRaycasts = false; // Don't block clicks.
         }
         else
         {
@@ -27,46 +25,32 @@ public class Fader : MonoBehaviour
         }
     }
 
-    /// <summary>
-    /// Fades the screen from black to clear.
-    /// </summary>
-    /// <param name="time">The duration of the fade in seconds.</param>
-    public Coroutine FadeIn(float time)
+    // Black to clear
+    public Coroutine FadeOut()
     {
-        return StartCoroutine(FadeInRoutine(time));
+        return StartCoroutine(FadeOutRoutine());
     }
 
-    /// <summary>
-    /// Fades the screen from clear to black.
-    /// </summary>
-    /// <param name="time">The duration of the fade in seconds.</param>
-    public Coroutine FadeOut(float time)
+    private IEnumerator FadeOutRoutine()
     {
-        return StartCoroutine(FadeOutRoutine(time));
-    }
-
-    private IEnumerator FadeInRoutine(float time)
-    {
-        // Loop until the alpha is 0 (fully transparent).
         while (canvasGroup.alpha > 0)
         {
-            canvasGroup.alpha -= Time.deltaTime / time;
+            canvasGroup.alpha -= Time.deltaTime / fadeTime;
             yield return null;
         }
-
-        // Once visible, disable raycast blocking so UI beneath can be clicked.
-        canvasGroup.blocksRaycasts = false;
     }
 
-    private IEnumerator FadeOutRoutine(float time)
+    // Clear to black
+    public Coroutine FadeIn()
     {
-        // Before fading out, enable raycast blocking to prevent clicks during transition.
-        canvasGroup.blocksRaycasts = true;
+        return StartCoroutine(FadeInRoutine());
+    }
 
-        // Loop until the alpha is 1 (fully opaque).
+    private IEnumerator FadeInRoutine()
+    {
         while (canvasGroup.alpha < 1)
         {
-            canvasGroup.alpha += Time.deltaTime / time;
+            canvasGroup.alpha += Time.deltaTime / fadeTime;
             yield return null;
         }
     }
